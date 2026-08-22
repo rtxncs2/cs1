@@ -38,6 +38,8 @@
             font-size: 15px;
             -webkit-font-smoothing: antialiased;
             overscroll-behavior: none;
+            overflow-x: hidden;
+            width: 100%;
         }
 
         /* ═══════════════════════════════════════
@@ -47,12 +49,14 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            height: 100vh;
-            height: 100dvh;
+            min-height: 100vh;
+            min-height: 100dvh;
             background: var(--bg-chat);
             background-image:
                 radial-gradient(ellipse 80% 60% at 50% -10%, rgba(0,168,132,.18) 0%, transparent 70%);
-            padding: 16px;
+            padding: 24px 16px;
+            overflow-y: auto;
+            box-sizing: border-box;
         }
 
         .login-card {
@@ -67,6 +71,7 @@
             flex-direction: column;
             align-items: center;
             gap: 28px;
+            box-sizing: border-box;
         }
 
         .login-logo {
@@ -136,16 +141,27 @@
         .field-wrap input::placeholder { color: var(--text-meta); }
         .field-wrap input:focus { border-color: var(--accent); }
 
+        /* Reserve space on the right so typed text never runs under the eye icon */
+        .field-wrap.has-toggle input { padding-right: 42px; }
+
         .toggle-pw {
             position: absolute;
-            right: 12px;
+            top: 50%;
+            right: 6px;
+            transform: translateY(-50%);
+            width: 30px;
+            height: 30px;
             background: none;
             border: none;
             color: var(--text-meta);
             cursor: pointer;
-            padding: 4px;
+            padding: 0;
+            margin: 0;
             display: flex;
             align-items: center;
+            justify-content: center;
+            line-height: 0;
+            -webkit-tap-highlight-color: transparent;
         }
         .toggle-pw:hover { color: var(--text-secondary); }
 
@@ -512,10 +528,19 @@
            MOBILE — Telegram-style hamburger sidebar
         ═══════════════════════════════════════ */
         @media (max-width: 768px) {
+            #app-screen {
+                height: 100vh;
+                height: 100dvh;
+                width: 100%;
+            }
+
             .shell {
                 display: block;
                 position: relative;
                 overflow: hidden;
+                width: 100%;
+                height: 100vh;
+                height: 100dvh;
             }
 
             .sidebar {
@@ -527,6 +552,7 @@
                 border-right: none;
                 transition: transform 0.28s cubic-bezier(.4,0,.2,1);
                 transform: translateX(0);
+                box-sizing: border-box;
             }
 
             .chat-main {
@@ -537,6 +563,7 @@
                 z-index: 2;
                 transition: transform 0.28s cubic-bezier(.4,0,.2,1);
                 transform: translateX(100%);
+                box-sizing: border-box;
             }
 
             /* When a chat is open on mobile: sidebar slides out left, chat slides in */
@@ -545,11 +572,31 @@
 
             .menu-btn { display: flex; }
 
+            .sidebar-header { padding: 8px 10px; min-height: 56px; }
+            .sidebar-header .me { gap: 8px; }
+            .sidebar-actions { gap: 2px; }
+
             .chat-item { padding: 12px 16px; }
+            .chat-item .av-circle { width: 44px !important; height: 44px !important; font-size: 15px !important; }
+
+            .chat-topbar { padding: 8px 10px; min-height: 56px; }
 
             #message-container { padding: 12px 4% 8px; }
 
             .bubble { max-width: 82%; }
+
+            .chat-inputbar { padding: 8px 10px; padding-bottom: max(8px, env(safe-area-inset-bottom)); }
+
+            /* Login screen */
+            .login-card { padding: 32px 22px 24px; border-radius: 16px; gap: 22px; }
+            .login-logo svg { width: 48px; height: 48px; }
+            .login-logo h1 { font-size: 19px; }
+        }
+
+        @media (max-width: 360px) {
+            .sidebar-header .me-name { font-size: 14px; }
+            .sidebar-header .me-role { font-size: 11px; }
+            .icon-btn { width: 32px; height: 32px; }
         }
     </style>
 </head>
@@ -581,7 +628,7 @@
 
             <div class="field-group">
                 <label>Password</label>
-                <div class="field-wrap">
+                <div class="field-wrap has-toggle">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
                         <path d="M8 1a2 2 0 0 1 2 2v4H6V3a2 2 0 0 1 2-2zm3 6V3a3 3 0 0 0-6 0v4a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/>
                     </svg>
