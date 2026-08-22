@@ -1,0 +1,1072 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Chat</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --bg-app:          #111b21;
+            --bg-sidebar:      #111b21;
+            --bg-chat:         #0b141a;
+            --bg-panel:        #202c33;
+            --bg-input:        #2a3942;
+            --bg-bubble-me:    #005c4b;
+            --bg-bubble-other: #202c33;
+            --accent:          #00a884;
+            --accent-dim:      #008069;
+            --text-primary:    #e9edef;
+            --text-secondary:  #8696a0;
+            --text-meta:       #667781;
+            --divider:         #222d34;
+            --hover:           #2a3942;
+            --active:          #2a3942;
+            --danger:          #ef4444;
+            --radius-bubble:   7.5px;
+            --font: 'Inter', system-ui, sans-serif;
+        }
+
+        html, body {
+            height: 100%;
+            font-family: var(--font);
+            background: var(--bg-app);
+            color: var(--text-primary);
+            font-size: 15px;
+            -webkit-font-smoothing: antialiased;
+            overscroll-behavior: none;
+        }
+
+        /* ═══════════════════════════════════════
+           LOGIN SCREEN
+        ═══════════════════════════════════════ */
+        #login-screen {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            height: 100dvh;
+            background: var(--bg-chat);
+            background-image:
+                radial-gradient(ellipse 80% 60% at 50% -10%, rgba(0,168,132,.18) 0%, transparent 70%);
+            padding: 16px;
+        }
+
+        .login-card {
+            width: 100%;
+            max-width: 400px;
+            padding: 44px 40px 36px;
+            background: var(--bg-panel);
+            border-radius: 20px;
+            border: 1px solid rgba(255,255,255,.06);
+            box-shadow: 0 24px 60px rgba(0,0,0,.5);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 28px;
+        }
+
+        .login-logo {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+        .login-logo svg { width: 60px; height: 60px; }
+        .login-logo h1 {
+            font-size: 22px;
+            font-weight: 600;
+            color: var(--text-primary);
+            letter-spacing: -0.3px;
+        }
+        .login-logo p {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .login-form {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .field-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .field-group label {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            letter-spacing: 0.4px;
+            text-transform: uppercase;
+        }
+
+        .field-wrap {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .field-wrap svg {
+            position: absolute;
+            left: 14px;
+            color: var(--text-meta);
+            pointer-events: none;
+        }
+
+        .field-wrap input {
+            width: 100%;
+            padding: 11px 14px 11px 40px;
+            background: var(--bg-input);
+            border: 1.5px solid transparent;
+            border-radius: 10px;
+            color: var(--text-primary);
+            font-size: 16px;
+            font-family: var(--font);
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .field-wrap input::placeholder { color: var(--text-meta); }
+        .field-wrap input:focus { border-color: var(--accent); }
+
+        .toggle-pw {
+            position: absolute;
+            right: 12px;
+            background: none;
+            border: none;
+            color: var(--text-meta);
+            cursor: pointer;
+            padding: 4px;
+            display: flex;
+            align-items: center;
+        }
+        .toggle-pw:hover { color: var(--text-secondary); }
+
+        .login-error {
+            font-size: 13px;
+            color: var(--danger);
+            text-align: center;
+            min-height: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+        .login-error.visible { opacity: 1; }
+
+        .login-btn {
+            width: 100%;
+            padding: 13px;
+            background: var(--accent);
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 600;
+            font-family: var(--font);
+            cursor: pointer;
+            transition: background 0.15s, transform 0.1s;
+            letter-spacing: 0.2px;
+        }
+        .login-btn:hover  { background: var(--accent-dim); }
+        .login-btn:active { transform: scale(0.98); }
+
+        .demo-hint {
+            width: 100%;
+            border-top: 1px solid var(--divider);
+            padding-top: 20px;
+        }
+
+        .demo-hint-label {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-meta);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            text-align: center;
+            margin-bottom: 12px;
+        }
+
+        .demo-users {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .demo-user-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 12px;
+            background: var(--bg-input);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.12s;
+            border: 1px solid transparent;
+        }
+        .demo-user-row:hover { background: var(--hover); border-color: var(--accent); }
+
+        .demo-av {
+            width: 30px; height: 30px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 12px; font-weight: 700;
+            color: #fff;
+            flex-shrink: 0;
+        }
+
+        .demo-info { flex: 1; min-width: 0; }
+        .demo-name { font-size: 13px; font-weight: 500; color: var(--text-primary); }
+        .demo-creds { font-size: 11px; color: var(--text-meta); font-family: monospace; }
+
+        .badge-admin {
+            font-size: 10px;
+            font-weight: 700;
+            background: var(--accent);
+            color: #fff;
+            border-radius: 20px;
+            padding: 2px 7px;
+            letter-spacing: 0.3px;
+            flex-shrink: 0;
+        }
+
+        /* ═══════════════════════════════════════
+           APP SHELL
+        ═══════════════════════════════════════ */
+        #app-screen {
+            display: none;
+            height: 100vh;
+            height: 100dvh;
+            overflow: hidden;
+        }
+
+        .shell {
+            display: grid;
+            grid-template-columns: 360px 1fr;
+            grid-template-rows: 100vh;
+            grid-template-rows: 100dvh;
+            height: 100vh;
+            height: 100dvh;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* ─── SIDEBAR ─── */
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            background: var(--bg-sidebar);
+            border-right: 1px solid var(--divider);
+            overflow: hidden;
+        }
+
+        .sidebar-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 16px;
+            background: var(--bg-panel);
+            min-height: 60px;
+        }
+
+        .sidebar-header .me { display: flex; align-items: center; gap: 12px; min-width: 0; }
+        .sidebar-header .me-info { line-height: 1.3; min-width: 0; }
+        .sidebar-header .me-name { font-size: 15px; font-weight: 600; color: var(--text-primary); }
+        .sidebar-header .me-role { font-size: 12px; color: var(--text-secondary); }
+
+        .sidebar-actions { display: flex; gap: 6px; flex-shrink: 0; }
+
+        .icon-btn {
+            width: 36px; height: 36px;
+            border-radius: 50%;
+            border: none;
+            background: transparent;
+            color: var(--text-secondary);
+            cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            transition: background 0.15s, color 0.15s;
+            flex-shrink: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .icon-btn:hover { background: var(--hover); color: var(--text-primary); }
+        .icon-btn.danger:hover { background: rgba(239,68,68,.15); color: var(--danger); }
+
+        .sidebar-search { padding: 8px 12px; background: var(--bg-sidebar); }
+
+        .search-wrap {
+            display: flex; align-items: center; gap: 8px;
+            background: var(--bg-panel);
+            border-radius: 8px;
+            padding: 8px 12px;
+        }
+        .search-wrap svg { color: var(--text-secondary); flex-shrink: 0; }
+        .search-wrap input {
+            background: none; border: none; outline: none;
+            color: var(--text-primary); font-size: 15px; width: 100%;
+        }
+        .search-wrap input::placeholder { color: var(--text-secondary); }
+
+        .section-label {
+            padding: 6px 16px 4px;
+            font-size: 12px; font-weight: 600;
+            color: var(--text-meta);
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        .chat-list { list-style: none; overflow-y: auto; flex: 1; -webkit-overflow-scrolling: touch; }
+        .chat-list::-webkit-scrollbar { width: 4px; }
+        .chat-list::-webkit-scrollbar-thumb { background: var(--bg-input); border-radius: 2px; }
+
+        .chat-item {
+            display: flex; align-items: center; gap: 12px;
+            padding: 10px 16px;
+            cursor: pointer;
+            transition: background 0.12s;
+            border-bottom: 1px solid var(--divider);
+            -webkit-tap-highlight-color: transparent;
+        }
+        .chat-item:hover { background: var(--hover); }
+        .chat-item.active { background: var(--active); }
+        .chat-item:active { background: var(--active); }
+
+        .chat-item-info { flex: 1; min-width: 0; }
+        .chat-item-top { display: flex; justify-content: space-between; align-items: center; }
+        .chat-item-name { font-size: 15px; font-weight: 500; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .chat-item-time { font-size: 12px; color: var(--text-meta); flex-shrink: 0; }
+        .chat-item-preview { font-size: 13px; color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 2px; }
+
+        /* ─── MAIN CHAT ─── */
+        .chat-main {
+            display: flex; flex-direction: column;
+            background: var(--bg-chat);
+            position: relative;
+            min-height: 0;
+            overflow: hidden;
+        }
+        .chat-main::before {
+            content: '';
+            position: absolute; inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.015'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+            pointer-events: none; z-index: 0;
+        }
+
+        #active-chat {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            min-height: 0;
+            overflow: hidden;
+        }
+
+        .chat-topbar {
+            display: flex; align-items: center; gap: 12px;
+            padding: 10px 16px;
+            background: var(--bg-panel);
+            min-height: 60px;
+            flex-shrink: 0;
+            z-index: 1; position: relative;
+        }
+        .chat-topbar-info { flex: 1; min-width: 0; }
+        .chat-topbar-name { font-size: 15px; font-weight: 600; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .chat-topbar-sub { font-size: 13px; color: var(--text-secondary); }
+
+        /* Hamburger / back button — hidden on desktop, shown on mobile */
+        .menu-btn {
+            display: none;
+            width: 40px; height: 40px;
+            border-radius: 50%;
+            border: none;
+            background: transparent;
+            color: var(--text-secondary);
+            cursor: pointer;
+            align-items: center; justify-content: center;
+            flex-shrink: 0;
+            -webkit-tap-highlight-color: transparent;
+            transition: background 0.15s;
+        }
+        .menu-btn:hover { background: var(--hover); }
+
+        .empty-state {
+            flex: 1; display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            gap: 12px; color: var(--text-secondary);
+            z-index: 1; position: relative;
+        }
+        .empty-state svg { opacity: 0.3; }
+        .empty-state p { font-size: 14px; }
+
+        #message-container {
+            flex: 1;
+            min-height: 0;
+            overflow-y: auto;
+            padding: 12px 8% 8px;
+            display: flex; flex-direction: column; gap: 2px;
+            z-index: 1; position: relative;
+            scroll-behavior: smooth;
+            -webkit-overflow-scrolling: touch;
+            overscroll-behavior: contain;
+        }
+        #message-container::-webkit-scrollbar { width: 5px; }
+        #message-container::-webkit-scrollbar-thumb { background: rgba(255,255,255,.1); border-radius: 3px; }
+
+        .msg-day-label { text-align: center; margin: 8px 0; }
+        .msg-day-label span {
+            background: var(--bg-panel); color: var(--text-secondary);
+            font-size: 12px; padding: 4px 12px; border-radius: 8px;
+        }
+
+        .bubble-row { display: flex; margin-bottom: 1px; }
+        .bubble-row.me    { justify-content: flex-end; }
+        .bubble-row.other { justify-content: flex-start; }
+
+        .bubble {
+            max-width: 65%;
+            padding: 7px 10px 6px;
+            border-radius: var(--radius-bubble);
+            position: relative; line-height: 1.4; word-break: break-word;
+        }
+        .bubble-row.me    .bubble { background: var(--bg-bubble-me);    border-top-right-radius: 2px; }
+        .bubble-row.other .bubble { background: var(--bg-bubble-other); border-top-left-radius: 2px; }
+
+        .bubble-sender { font-size: 12.5px; font-weight: 600; color: var(--accent); margin-bottom: 2px; }
+        .bubble-text   { font-size: 14.5px; color: var(--text-primary); }
+
+        .bubble-meta {
+            display: flex; justify-content: flex-end; align-items: center;
+            gap: 4px; margin-top: 3px;
+        }
+        .bubble-time { font-size: 11px; color: var(--text-meta); }
+        .bubble-tick svg { color: var(--accent); }
+
+        .chat-inputbar {
+            display: flex; align-items: center; gap: 10px;
+            padding: 10px 16px;
+            background: var(--bg-panel);
+            flex-shrink: 0;
+            z-index: 1; position: relative;
+        }
+
+        .input-wrap {
+            flex: 1; display: flex; align-items: center;
+            background: var(--bg-input);
+            border-radius: 24px;
+            padding: 8px 16px; gap: 10px;
+        }
+        .input-wrap input {
+            flex: 1; background: none; border: none; outline: none;
+            color: var(--text-primary); font-size: 16px; font-family: var(--font);
+        }
+        .input-wrap input::placeholder { color: var(--text-secondary); }
+
+        .send-btn {
+            width: 44px; height: 44px;
+            border-radius: 50%; border: none;
+            background: var(--accent); color: #fff;
+            cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            transition: background 0.15s, transform 0.1s; flex-shrink: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .send-btn:hover  { background: var(--accent-dim); }
+        .send-btn:active { transform: scale(0.93); }
+        .send-btn svg    { width: 20px; height: 20px; }
+
+        .admin-notice {
+            display: flex; align-items: center; gap: 8px;
+            padding: 12px 20px;
+            background: rgba(239,68,68,.08);
+            border-top: 1px solid rgba(239,68,68,.2);
+            color: var(--danger); font-size: 13px;
+            flex-shrink: 0;
+            z-index: 1; position: relative;
+        }
+
+        /* avatar colour palette */
+        .av-1 { background: #6366f1; }
+        .av-2 { background: #ec4899; }
+        .av-3 { background: #f59e0b; }
+        .av-4 { background: #10b981; }
+        .av-5 { background: #3b82f6; }
+        .av-ann { background: #8b5cf6; }
+        .av-gen { background: #0ea5e9; }
+
+        .av-circle {
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 600; color: #fff;
+        }
+
+        * { scrollbar-width: thin; scrollbar-color: var(--bg-input) transparent; }
+
+        /* ═══════════════════════════════════════
+           MOBILE — Telegram-style hamburger sidebar
+        ═══════════════════════════════════════ */
+        @media (max-width: 768px) {
+            .shell {
+                display: block;
+                position: relative;
+                overflow: hidden;
+            }
+
+            .sidebar {
+                position: absolute;
+                top: 0; left: 0;
+                width: 100%;
+                height: 100%;
+                z-index: 3;
+                border-right: none;
+                transition: transform 0.28s cubic-bezier(.4,0,.2,1);
+                transform: translateX(0);
+            }
+
+            .chat-main {
+                position: absolute;
+                top: 0; left: 0;
+                width: 100%;
+                height: 100%;
+                z-index: 2;
+                transition: transform 0.28s cubic-bezier(.4,0,.2,1);
+                transform: translateX(100%);
+            }
+
+            /* When a chat is open on mobile: sidebar slides out left, chat slides in */
+            .shell.chat-active .sidebar   { transform: translateX(-100%); }
+            .shell.chat-active .chat-main { transform: translateX(0); }
+
+            .menu-btn { display: flex; }
+
+            .chat-item { padding: 12px 16px; }
+
+            #message-container { padding: 12px 4% 8px; }
+
+            .bubble { max-width: 82%; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ══════════════ LOGIN ══════════════ -->
+<div id="login-screen">
+    <div class="login-card">
+        <div class="login-logo">
+            <svg viewBox="0 0 72 72" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="36" cy="36" r="36" fill="#00a884"/>
+                <path d="M36 14C23.85 14 14 23.85 14 36c0 3.86 1.02 7.48 2.8 10.62L14 58l11.67-2.74A21.87 21.87 0 0036 58c12.15 0 22-9.85 22-22S48.15 14 36 14zm0 40a18 18 0 01-9.18-2.52l-.66-.39-6.92 1.62 1.65-6.75-.43-.7A18 18 0 1136 54z" fill="white"/>
+                <path d="M29.5 26.5c-.5-1.1-1-1.12-1.5-1.14-.4-.02-.84-.02-1.28-.02-.44 0-1.16.17-1.77.83-.6.66-2.3 2.25-2.3 5.48s2.35 6.36 2.68 6.8c.33.44 4.55 7.28 11.24 9.92 5.56 2.2 6.7 1.76 7.9 1.65 1.2-.1 3.87-1.58 4.42-3.11.55-1.53.55-2.84.39-3.11-.17-.27-.6-.44-1.27-.77-.67-.33-3.87-1.91-4.47-2.13-.6-.22-1.04-.33-1.48.33-.44.66-1.7 2.13-2.08 2.57-.39.44-.77.5-1.44.17-.67-.33-2.82-1.04-5.38-3.32-1.99-1.77-3.33-3.96-3.72-4.62-.39-.66-.04-1.02.3-1.35.3-.3.67-.77 1-1.16.34-.4.45-.66.67-1.1.22-.44.11-.83-.06-1.16-.16-.33-1.44-3.56-2.05-4.86z" fill="white"/>
+            </svg>
+            <h1>Welcome back</h1>
+            <p>Sign in to continue</p>
+        </div>
+
+        <div class="login-form">
+            <div class="field-group">
+                <label>Username</label>
+                <div class="field-wrap">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0zm4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4zm-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.029 10 8 10c-2.029 0-3.516.68-4.168 1.332-.678.678-.83 1.418-.832 1.664h10z"/>
+                    </svg>
+                    <input type="text" id="login-username" placeholder="e.g. alice" autocomplete="username" autocapitalize="none">
+                </div>
+            </div>
+
+            <div class="field-group">
+                <label>Password</label>
+                <div class="field-wrap">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M8 1a2 2 0 0 1 2 2v4H6V3a2 2 0 0 1 2-2zm3 6V3a3 3 0 0 0-6 0v4a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/>
+                    </svg>
+                    <input type="password" id="login-password" placeholder="Enter password" autocomplete="current-password">
+                    <button class="toggle-pw" type="button" onclick="togglePw(this)" title="Show / hide password">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                            <path d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8zM1.173 8a13.133 13.133 0 0 1 1.66-2.043C4.12 4.668 5.88 3.5 8 3.5c2.12 0 3.879 1.168 5.168 2.457A13.133 13.133 0 0 1 14.828 8c-.058.087-.122.183-.195.288-.335.48-.83 1.12-1.465 1.755C11.879 11.332 10.119 12.5 8 12.5c-2.12 0-3.879-1.168-5.168-2.457A13.134 13.134 0 0 1 1.172 8z"/>
+                            <path d="M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5zM4.5 8a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0z"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <div class="login-error" id="login-error">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>
+                </svg>
+                <span id="login-error-text"></span>
+            </div>
+
+            <button class="login-btn" onclick="attemptLogin()">Sign in</button>
+        </div>
+
+        <!-- Demo accounts cheatsheet -->
+        <div class="demo-hint">
+            <div class="demo-hint-label">Demo accounts — click to autofill</div>
+            <div class="demo-users" id="demo-users"></div>
+        </div>
+    </div>
+</div>
+
+<!-- ══════════════ APP ══════════════ -->
+<div id="app-screen">
+    <div class="shell" id="shell">
+        <!-- SIDEBAR -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="me">
+                    <div class="av-circle" id="me-avatar" style="width:40px;height:40px;font-size:15px;"></div>
+                    <div class="me-info">
+                        <div class="me-name" id="current-user-name"></div>
+                        <div class="me-role" id="current-user-role"></div>
+                    </div>
+                </div>
+                <div class="sidebar-actions">
+                    <button class="icon-btn danger" onclick="clearChatHistory()" title="Reset all messages">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" fill="currentColor" viewBox="0 0 16 16"><path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/><path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4L4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/></svg>
+                    </button>
+                    <button class="icon-btn" onclick="logout()" title="Sign out">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" fill="currentColor" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M10 12.5a.5.5 0 0 1-.5.5h-8a.5.5 0 0 1-.5-.5v-9a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 .5.5v2a.5.5 0 0 0 1 0v-2A1.5 1.5 0 0 0 9.5 2h-8A1.5 1.5 0 0 0 0 3.5v9A1.5 1.5 0 0 0 1.5 14h8a1.5 1.5 0 0 0 1.5-1.5v-2a.5.5 0 0 0-1 0v2z"/><path fill-rule="evenodd" d="M15.854 8.354a.5.5 0 0 0 0-.708l-3-3a.5.5 0 0 0-.708.708L14.293 7.5H5.5a.5.5 0 0 0 0 1h8.793l-2.147 2.146a.5.5 0 0 0 .708.708l3-3z"/></svg>
+                    </button>
+                </div>
+            </div>
+
+            <div class="sidebar-search">
+                <div class="search-wrap">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" fill="currentColor" viewBox="0 0 16 16"><path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.099zm-5.242 1.156a5.5 5.5 0 1 1 0-11 5.5 5.5 0 0 1 0 11z"/></svg>
+                    <input type="text" placeholder="Search chats" oninput="filterChats(this.value)">
+                </div>
+            </div>
+
+            <ul class="chat-list" id="chat-list"></ul>
+        </aside>
+
+        <!-- MAIN -->
+        <main class="chat-main">
+            <div class="empty-state" id="empty-state">
+                <svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" fill="currentColor" viewBox="0 0 16 16"><path d="M8 15c4.418 0 8-3.134 8-7s-3.582-7-8-7-8 3.134-8 7c0 1.76.743 3.37 1.97 4.6-.097 1.016-.417 2.13-.771 2.966-.079.186.074.394.273.362 2.256-.37 3.597-.938 4.18-1.234A9.06 9.06 0 0 0 8 15z"/></svg>
+                <p>Select a chat to start messaging</p>
+            </div>
+
+            <div id="active-chat" style="display:none;">
+                <div class="chat-topbar">
+                    <button class="menu-btn" onclick="backToSidebar()" title="Back to chats" aria-label="Back to chats">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z"/></svg>
+                    </button>
+                    <div class="av-circle" id="topbar-avatar" style="width:40px;height:40px;font-size:15px;flex-shrink:0;"></div>
+                    <div class="chat-topbar-info">
+                        <div class="chat-topbar-name" id="chat-header"></div>
+                        <div class="chat-topbar-sub"  id="chat-sub"></div>
+                    </div>
+                </div>
+
+                <div id="message-container"></div>
+
+                <div id="message-form" style="display:none; flex-shrink:0;">
+                    <div class="chat-inputbar">
+                        <div class="input-wrap">
+                            <input type="text" id="message-input" placeholder="Type a message" autocomplete="off">
+                        </div>
+                        <button class="send-btn" onclick="sendMessage()">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+                        </button>
+                    </div>
+                </div>
+
+                <div id="admin-warning" class="admin-notice" style="display:none;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" fill="currentColor" viewBox="0 0 16 16"><path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/></svg>
+                    Only admins can post in this channel.
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<script>
+    const STORAGE_KEY = 'chat_app_messages_v1';
+    const MOBILE_QUERY = '(max-width: 768px)';
+
+    // ── Users (username + password) ──────────────────────────────────────────
+    const users = [
+        { id: 'u1', name: 'Alice',   username: 'alice',   password: 'admin123',  role: 'admin', avClass: 'av-1' },
+        { id: 'u2', name: 'Bob',     username: 'bob',     password: 'bob456',    role: 'user',  avClass: 'av-2' },
+        { id: 'u3', name: 'Charlie', username: 'charlie', password: 'charlie789',role: 'user',  avClass: 'av-3' },
+        { id: 'u4', name: 'Diana',   username: 'diana',   password: 'diana321',  role: 'user',  avClass: 'av-4' },
+        { id: 'u5', name: 'Evan',    username: 'evan',    password: 'evan654',   role: 'user',  avClass: 'av-5' },
+    ];
+
+    const chats = [
+        { id: 'g_announcements', name: 'Admin Announcements', emoji: '📢', type: 'admin_only', avClass: 'av-ann' },
+        { id: 'g_general',       name: 'General',             emoji: '💬', type: 'group',      avClass: 'av-gen' },
+    ];
+
+    const defaultMessages = {
+        'g_announcements': [
+            { senderId: 'u1', text: 'Welcome to the platform! Only admins can post here.', timestamp: '10:00 AM' }
+        ],
+        'g_general': [
+            { senderId: 'u2', text: 'Hey everyone! 👋', timestamp: '10:05 AM' },
+            { senderId: 'u3', text: 'Hello! Great to be here.', timestamp: '10:06 AM' },
+        ]
+    };
+
+    let messages    = loadMessages();
+    let currentUser = null;
+    let activeChatId= null;
+
+    function loadMessages() {
+        try {
+            const s = localStorage.getItem(STORAGE_KEY);
+            return s ? JSON.parse(s) : JSON.parse(JSON.stringify(defaultMessages));
+        } catch { return JSON.parse(JSON.stringify(defaultMessages)); }
+    }
+    function saveMessages() {
+        try { localStorage.setItem(STORAGE_KEY, JSON.stringify(messages)); } catch {}
+    }
+    function clearChatHistory() {
+        if (!confirm('Reset all message history?')) return;
+        localStorage.removeItem(STORAGE_KEY);
+        messages = JSON.parse(JSON.stringify(defaultMessages));
+        saveMessages();
+        if (activeChatId) renderMessages();
+    }
+
+    // ── Helpers ──────────────────────────────────────────────────────────────
+    function initials(name) { return name.split(' ').map(w => w[0]).join('').slice(0,2).toUpperCase(); }
+
+    function setAvatar(el, avClass, label, size = 40, fontSize = 15) {
+        el.className = 'av-circle ' + avClass;
+        el.style.width  = size + 'px';
+        el.style.height = size + 'px';
+        el.style.fontSize = fontSize + 'px';
+        el.textContent = label;
+    }
+
+    function escapeHTML(str) {
+        if (!str) return '';
+        return str.replace(/[&<>'"]/g,
+            t => ({ '&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;' }[t] || t));
+    }
+
+    function isMobile() {
+        return window.matchMedia(MOBILE_QUERY).matches;
+    }
+
+    // ── Login UI ─────────────────────────────────────────────────────────────
+    function initLoginScreen() {
+        const container = document.getElementById('demo-users');
+        container.innerHTML = '';
+        users.forEach(u => {
+            const row = document.createElement('div');
+            row.className = 'demo-user-row';
+            row.title = 'Click to autofill';
+            row.onclick = () => autofill(u.username, u.password);
+            row.innerHTML = `
+                <div class="demo-av ${u.avClass}" style="width:30px;height:30px;font-size:12px;">${initials(u.name)}</div>
+                <div class="demo-info">
+                    <div class="demo-name">${escapeHTML(u.name)}</div>
+                    <div class="demo-creds">${escapeHTML(u.username)} / ${escapeHTML(u.password)}</div>
+                </div>
+                ${u.role === 'admin' ? '<span class="badge-admin">Admin</span>' : ''}
+            `;
+            container.appendChild(row);
+        });
+    }
+
+    function autofill(username, password) {
+        document.getElementById('login-username').value = username;
+        document.getElementById('login-password').value = password;
+        clearError();
+        document.getElementById('login-password').focus();
+    }
+
+    function showError(msg) {
+        const el = document.getElementById('login-error');
+        document.getElementById('login-error-text').textContent = msg;
+        el.classList.add('visible');
+    }
+    function clearError() {
+        document.getElementById('login-error').classList.remove('visible');
+    }
+
+    function togglePw(btn) {
+        const inp = btn.closest('.field-wrap').querySelector('input');
+        inp.type = inp.type === 'password' ? 'text' : 'password';
+    }
+
+    function attemptLogin() {
+        const uname = document.getElementById('login-username').value.trim().toLowerCase();
+        const pw    = document.getElementById('login-password').value;
+        clearError();
+
+        if (!uname || !pw) { showError('Please enter username and password.'); return; }
+
+        const user = users.find(u => u.username === uname);
+        if (!user)          { showError('No account found for that username.'); return; }
+        if (user.password !== pw) { showError('Incorrect password. Try again.'); return; }
+
+        loginUser(user);
+    }
+
+    function loginUser(user) {
+        currentUser = user;
+
+        document.getElementById('current-user-name').textContent = user.name;
+        document.getElementById('current-user-role').textContent = user.role === 'admin' ? '⭐ Admin' : 'Member';
+        setAvatar(document.getElementById('me-avatar'), user.avClass, initials(user.name), 40, 15);
+
+        document.getElementById('login-screen').style.display = 'none';
+        document.getElementById('app-screen').style.display  = 'block';
+
+        // Default view: chat list shown, no chat open (Telegram-style default)
+        activeChatId = null;
+        document.getElementById('shell').classList.remove('chat-active');
+        document.getElementById('active-chat').style.display = 'none';
+        document.getElementById('empty-state').style.display = 'flex';
+
+        renderSidebar();
+    }
+
+    function logout() {
+        currentUser  = null;
+        activeChatId = null;
+        document.getElementById('login-username').value = '';
+        document.getElementById('login-password').value = '';
+        clearError();
+        document.getElementById('login-screen').style.display = 'flex';
+        document.getElementById('app-screen').style.display   = 'none';
+        document.getElementById('active-chat').style.display  = 'none';
+        document.getElementById('empty-state').style.display  = 'flex';
+        document.getElementById('shell').classList.remove('chat-active');
+    }
+
+    function getDmChatId(a, b) { return 'dm_' + [a,b].sort().join('_'); }
+
+    // ── Sidebar ──────────────────────────────────────────────────────────────
+    function renderSidebar() {
+        const list = document.getElementById('chat-list');
+        list.innerHTML = '';
+
+        const gLabel = document.createElement('li');
+        gLabel.className = 'section-label';
+        gLabel.textContent = 'Groups';
+        list.appendChild(gLabel);
+
+        chats.forEach(chat => {
+            const last = (messages[chat.id] || []).slice(-1)[0];
+            appendChatItem(list, chat.id,
+                chat.emoji + ' ' + chat.name,
+                last ? last.text : 'No messages yet',
+                last ? last.timestamp : '',
+                chat.avClass, chat.emoji);
+        });
+
+        const dmLabel = document.createElement('li');
+        dmLabel.className = 'section-label';
+        dmLabel.style.marginTop = '8px';
+        dmLabel.textContent = 'Direct Messages';
+        list.appendChild(dmLabel);
+
+        users.filter(u => u.id !== currentUser.id).forEach(other => {
+            const chatId = getDmChatId(currentUser.id, other.id);
+            const last   = (messages[chatId] || []).slice(-1)[0];
+            appendChatItem(list, chatId,
+                other.name,
+                last ? last.text : 'Start a conversation',
+                last ? last.timestamp : '',
+                other.avClass, initials(other.name));
+        });
+    }
+
+    function appendChatItem(list, chatId, name, preview, time, avClass, avLabel) {
+        const li = document.createElement('li');
+        li.className = 'chat-item' + (chatId === activeChatId ? ' active' : '');
+        li.dataset.chatId = chatId;
+        li.onclick = () => switchChat(chatId);
+        li.innerHTML = `
+            <div class="av-circle ${avClass}" style="width:49px;height:49px;font-size:17px;flex-shrink:0;">${escapeHTML(avLabel.slice(0,2))}</div>
+            <div class="chat-item-info">
+                <div class="chat-item-top">
+                    <span class="chat-item-name">${escapeHTML(name)}</span>
+                    <span class="chat-item-time">${escapeHTML(time)}</span>
+                </div>
+                <div class="chat-item-preview">${escapeHTML(preview)}</div>
+            </div>`;
+        list.appendChild(li);
+    }
+
+    function filterChats(q) {
+        q = q.toLowerCase();
+        document.querySelectorAll('.chat-item').forEach(li => {
+            const nm = li.querySelector('.chat-item-name').textContent.toLowerCase();
+            li.style.display = nm.includes(q) ? '' : 'none';
+        });
+    }
+
+    // ── Sidebar / chat visibility (mobile hamburger behaviour) ─────────────────
+    function backToSidebar() {
+        document.getElementById('shell').classList.remove('chat-active');
+    }
+
+    // ── Switch chat ──────────────────────────────────────────────────────────
+    function switchChat(chatId) {
+        activeChatId = chatId;
+        document.querySelectorAll('.chat-item').forEach(li =>
+            li.classList.toggle('active', li.dataset.chatId === chatId));
+
+        document.getElementById('empty-state').style.display  = 'none';
+        document.getElementById('active-chat').style.display  = 'flex';
+
+        // Telegram-style: on mobile, opening a chat auto-hides the sidebar
+        if (isMobile()) {
+            document.getElementById('shell').classList.add('chat-active');
+        }
+
+        const chat = chats.find(c => c.id === chatId);
+        let headerName, subText, avClass, avLabel;
+
+        if (chat) {
+            headerName = chat.emoji + ' ' + chat.name;
+            subText    = chat.type === 'admin_only' ? 'Admin-only channel' : `${users.length} members`;
+            avClass    = chat.avClass;
+            avLabel    = chat.emoji;
+        } else {
+            const parts   = chatId.split('_');
+            const otherId = parts[1] === currentUser.id ? parts[2] : parts[1];
+            const other   = users.find(u => u.id === otherId);
+            headerName = other ? other.name : 'Unknown';
+            subText    = 'Direct message';
+            avClass    = other ? other.avClass : 'av-1';
+            avLabel    = other ? initials(other.name) : '?';
+        }
+
+        document.getElementById('chat-header').textContent = headerName;
+        document.getElementById('chat-sub').textContent    = subText;
+        setAvatar(document.getElementById('topbar-avatar'), avClass, avLabel.slice(0,2), 40, 15);
+
+        const form    = document.getElementById('message-form');
+        const warning = document.getElementById('admin-warning');
+        if (chat && chat.type === 'admin_only' && currentUser.role !== 'admin') {
+            form.style.display    = 'none';
+            warning.style.display = 'flex';
+        } else {
+            form.style.display    = 'block';
+            warning.style.display = 'none';
+            if (!isMobile()) {
+                setTimeout(() => document.getElementById('message-input').focus(), 50);
+            }
+        }
+
+        renderMessages();
+    }
+
+    // ── Messages ─────────────────────────────────────────────────────────────
+    function renderMessages() {
+        const container = document.getElementById('message-container');
+        container.innerHTML = '';
+        const msgs = messages[activeChatId] || [];
+
+        if (msgs.length === 0) {
+            container.innerHTML = '<div style="text-align:center;color:var(--text-meta);font-size:13px;padding:24px 0;">No messages yet. Say hello! 👋</div>';
+            return;
+        }
+
+        const dayDiv = document.createElement('div');
+        dayDiv.className = 'msg-day-label';
+        dayDiv.innerHTML = '<span>Today</span>';
+        container.appendChild(dayDiv);
+
+        const isGroup = !!chats.find(c => c.id === activeChatId);
+
+        msgs.forEach(msg => {
+            const sender = users.find(u => u.id === msg.senderId);
+            const isMe   = msg.senderId === currentUser.id;
+
+            const row    = document.createElement('div');
+            row.className = 'bubble-row ' + (isMe ? 'me' : 'other');
+
+            const bubble = document.createElement('div');
+            bubble.className = 'bubble';
+
+            let inner = '';
+            if (!isMe && isGroup && sender)
+                inner += `<div class="bubble-sender">${escapeHTML(sender.name)}</div>`;
+            inner += `<div class="bubble-text">${escapeHTML(msg.text)}</div>`;
+            inner += `<div class="bubble-meta">
+                <span class="bubble-time">${escapeHTML(msg.timestamp)}</span>
+                ${isMe ? `<span class="bubble-tick"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M12.354 4.354a.5.5 0 0 0-.708-.708L5 10.293 1.854 7.146a.5.5 0 1 0-.708.708l3.5 3.5a.5.5 0 0 0 .708 0l7-7zm-4.208 7.209-.496.495.708.708.496-.495-.708-.708zm1.907-7.566-.896.897.708.707.895-.897-.707-.707z"/></svg></span>` : ''}
+            </div>`;
+
+            bubble.innerHTML = inner;
+            row.appendChild(bubble);
+            container.appendChild(row);
+        });
+
+        // instant on load, smooth on new message
+        container.scrollTop = container.scrollHeight;
+    }
+
+    function scrollToBottom(smooth = false) {
+        const c = document.getElementById('message-container');
+        c.scrollTo({ top: c.scrollHeight, behavior: smooth ? 'smooth' : 'instant' });
+    }
+
+    // ── Send ─────────────────────────────────────────────────────────────────
+    function sendMessage() {
+        const input = document.getElementById('message-input');
+        const text  = input.value.trim();
+        if (!text || !activeChatId) return;
+
+        if (!messages[activeChatId]) messages[activeChatId] = [];
+        const time = new Date().toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' });
+        messages[activeChatId].push({ senderId: currentUser.id, text, timestamp: time });
+
+        saveMessages();
+        renderSidebar();
+        input.value = '';
+        renderMessages();
+        // smooth scroll to the new message like WhatsApp
+        requestAnimationFrame(() => scrollToBottom(true));
+    }
+
+    document.addEventListener('keydown', e => {
+        if (e.key === 'Enter') {
+            if (document.getElementById('app-screen').style.display !== 'none'
+                && activeChatId
+                && document.getElementById('message-form').style.display !== 'none') {
+                sendMessage();
+            }
+            if (document.getElementById('login-screen').style.display !== 'none') {
+                attemptLogin();
+            }
+        }
+    });
+
+    window.addEventListener('storage', e => {
+        if (e.key === STORAGE_KEY) {
+            messages = loadMessages();
+            if (currentUser) renderSidebar();
+            if (activeChatId) renderMessages();
+        }
+    });
+
+    // If the viewport crosses the mobile breakpoint while a chat is open,
+    // make sure desktop view always shows both panes correctly.
+    window.matchMedia(MOBILE_QUERY).addEventListener('change', e => {
+        if (!e.matches) {
+            document.getElementById('shell').classList.remove('chat-active');
+        } else if (activeChatId) {
+            document.getElementById('shell').classList.add('chat-active');
+        }
+    });
+
+    // Boot
+    initLoginScreen();
+</script>
+</body>
+</html>
